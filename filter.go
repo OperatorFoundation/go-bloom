@@ -14,7 +14,7 @@ type Filter interface {
 }
 
 // Classic Bloom Filter
-type classicFilter struct {
+type ClassicFilter struct {
 	b []byte
 	k int
 	h func([]byte) (uint64, uint64)
@@ -25,14 +25,14 @@ type classicFilter struct {
 func New(n int, p float64, h func([]byte) (uint64, uint64)) Filter {
 	k := -math.Log(p) * math.Log2E   // number of hashes
 	m := float64(n) * k * math.Log2E // number of bits
-	return &classicFilter{b: make([]byte, int(m/8)), k: int(k), h: h}
+	return &ClassicFilter{b: make([]byte, int(m/8)), k: int(k), h: h}
 }
 
-func (f *classicFilter) getOffset(x, y uint64, i int) uint64 {
+func (f *ClassicFilter) getOffset(x, y uint64, i int) uint64 {
 	return (x + uint64(i)*y) % (8 * uint64(len(f.b)))
 }
 
-func (f *classicFilter) Add(b []byte) {
+func (f *ClassicFilter) Add(b []byte) {
 	x, y := f.h(b)
 	for i := 0; i < f.k; i++ {
 		offset := f.getOffset(x, y, i)
@@ -40,7 +40,7 @@ func (f *classicFilter) Add(b []byte) {
 	}
 }
 
-func (f *classicFilter) Test(b []byte) bool {
+func (f *ClassicFilter) Test(b []byte) bool {
 	x, y := f.h(b)
 	for i := 0; i < f.k; i++ {
 		offset := f.getOffset(x, y, i)
@@ -51,9 +51,9 @@ func (f *classicFilter) Test(b []byte) bool {
 	return true
 }
 
-func (f *classicFilter) Size() int { return len(f.b) }
+func (f *ClassicFilter) Size() int { return len(f.b) }
 
-func (f *classicFilter) Reset() {
+func (f *ClassicFilter) Reset() {
 	for i := range f.b {
 		f.b[i] = 0
 	}
